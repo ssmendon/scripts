@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Copyright (C) 2024  Sohum Mendon
+# SPDX-License-Identifier: MIT
+
+# shellcheck enable=all
+# shellcheck disable=SC2250
+
+# Exit on failure or when accessing an unset variable.
+set -o errexit
+set -o nounset
+set -o pipefail
+
+# Thanks: <https://web.archive.org/web/20240324071243/https://discussion.fedoraproject.org/t/windows-with-encrypted-disks-bitlocker-cant-be-booted-from-the-grub-boot-menu/72635>
+
+windows="$(efibootmgr \
+| sed -ne '
+# Delete lines which do not contain Windows Boot Manager
+/Windows Boot Manager/!d
+
+# Extract 4 hexadecimal digits between "Boot" and "*"
+s|^Boot\([0-9a-zA-Z]\{4\}\)\*.*|\1|p
+')"
+
+if [[ -n "$windows" ]]; then
+    efibootmgr --bootnext "$windows"
+else
+    printf 2>&1 "ERR: Failed to identify 'Windows Boot Manager' in efibootmgr output.\n"
+fi

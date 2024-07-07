@@ -1,0 +1,55 @@
+#!/usr/bin/env sh
+# SPDX-License-Identifier: MIT
+# Wraps a line of text.
+
+# If you're using moreutils, you can try sponge:
+# $ fold -w 80 -s FILENAME | sponge FILENAME
+
+
+fail=0
+version="0.1.0"
+
+usage() {
+    cat << EOF
+
+wrap v${version}
+
+usage: wrap <FILE>
+EOF
+}
+
+if ! command -v fold > /dev/null
+then
+    printf >&2 "fold not found, try installing coreutils\n"
+    fail=1
+fi 
+
+if [ "$#" -ne 1 ]
+then
+    printf >&2 "ERROR: Bad arguments\n"
+    usage
+    fail=2
+fi
+
+if [ "$fail" -ne 0 ]
+then
+    exit "$fail"
+fi
+
+set -o nounset
+set -o errexit
+
+# warning: errexit doesn't work for piped input on sh
+# also, coreutils 9.4 fold on Fedora Linux doesn't output an error code on a missing file
+# see: https://bugzilla.redhat.com/show_bug.cgi?id=2296201
+if fold_output=$(fold -w 80 -s "$1")
+then
+    if [ -n "$fold_output" ]
+    then printf "%s" "$fold_output" > "$1"
+    else printf >&2 "No output from fold\n"
+    fi
+else
+    # Should have printed an error message from fold.
+    exit 3
+fi
+

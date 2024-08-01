@@ -1,0 +1,74 @@
+#!/usr/bin/env sh
+# SPDX-License-Identifier: MIT
+# Re-enrolls a TPM for auto-unlock, using systemd-cryptenroll.
+
+# shellcheck enable=all
+# shellcheck disable=SC2250
+
+# This is just a quick utility, but ideally the config
+# should be in /etc.
+#
+# And, the command used for privilege escalation
+# should be configurable.
+
+version="0.1.0"
+config_path="${HOME}/.config/update-tpm/conf.sh"
+luks_drive=
+tpm2_pcrs=
+
+set -o errexit
+set -o nounset
+
+usage() {
+    cat << EOF
+update-tpm v${version}
+
+usage: update-tpm
+EOF
+}
+
+if ! command -v systemd-cryptenroll > /dev/null; then
+    printf >&2 "systemd-cryptenroll not found\n"
+    exit 1
+fi
+
+if ! [ -f "$config_path" ]; then
+    printf >&2 "config file not found: %s\n" "${config_path}" 
+    exit 1
+fi
+
+# Config should set the following variables:
+# 
+# luks_drive
+# tpm2_pcrs
+#
+# For example:
+# luks_drive=/dev/sda1
+# tpm2_pcrs=4+7+11
+
+# shellcheck disable=SC1090 # non-constant source in homedir
+. "${config_path}"
+
+if ! [ -b "$luks_drive" ]; then
+    printf >&2 "block device not found: %s\n" "$luks_drive"
+    exit 1
+fi
+
+if [ -z "$tpm2_pcrs" ]; then
+    printf >&2 "tpm2_pcrs not set\n"
+    exit 1
+fi
+
+# now we need administrative privileges
+set -o xtrace
+sudo systemd-cryptenroll \
+    --wipe-slot=tpm2 \
+    --tpm2-device=auto \
+    --tpm2-pcrs="$tpm2_pcrs" \
+    "$luks_drive"
+set +o xtrace
+
+printf "Remember to:\n"
+printf "\t1. add 'tpm2-device=auto,tpm2-pcrs=%s' to /etc/crypttab\n" "$tpm2_pcrs"
+printf "\t2. add tpm2-tss to dracut modules\n"
+printf "\t3. regen dracut: dracut -f\n"

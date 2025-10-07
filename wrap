@@ -22,7 +22,7 @@ if ! command -v fold > /dev/null
 then
     printf >&2 "fold not found, try installing coreutils\n"
     fail=1
-fi 
+fi
 
 if [ "$#" -ne 1 ]
 then
@@ -52,4 +52,3 @@ else
     # Should have printed an error message from fold.
     exit 3
 fi
-

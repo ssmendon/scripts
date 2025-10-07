@@ -33,12 +33,12 @@ if ! command -v systemd-cryptenroll > /dev/null; then
 fi
 
 if ! [ -f "$config_path" ]; then
-    printf >&2 "config file not found: %s\n" "${config_path}" 
+    printf >&2 "config file not found: %s\n" "${config_path}"
     exit 1
 fi
 
 # Config should set the following variables:
-# 
+#
 # luks_drive
 # tpm2_pcrs
 #

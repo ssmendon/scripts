@@ -1,0 +1,12 @@
+enable=all
+
+# Disable some optional checks enabled by `enable=all`.
+# quote-safe-variables
+# https://www.shellcheck.net/wiki/SC2248
+disable=SC2248
+# require-variable-braces
+# # https://www.shellcheck.net/wiki/SC2250
+disable=SC2250
+
+# Defaults to false, but can safely be enabled for normal development.
+external-sources=true

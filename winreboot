@@ -2,9 +2,6 @@
 # Copyright (C) 2024  Sohum Mendon
 # SPDX-License-Identifier: MIT
 
-# shellcheck enable=all
-# shellcheck disable=SC2250
-
 # Exit on failure or when accessing an unset variable.
 set -o errexit
 set -o nounset

@@ -2,9 +2,6 @@
 # SPDX-License-Identifier: MIT
 # Re-enrolls a TPM for auto-unlock, using systemd-cryptenroll.
 
-# shellcheck enable=all
-# shellcheck disable=SC2250
-
 # This is just a quick utility, but ideally the config
 # should be in /etc.
 #
